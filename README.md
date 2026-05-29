@@ -6,8 +6,8 @@ A responsive coffee shop website built with Bootstrap 4. Branding, UI/UX enhance
 
 ## Previews
 
-| Home (full layout) | Hero carousel |
-|:---:|:---:|
+| Home (full layout) | 
+|:---:|
 | ![Home page](previews/home-full.jpg) |
 
 
