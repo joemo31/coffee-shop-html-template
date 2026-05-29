@@ -10,13 +10,7 @@ A responsive coffee shop website built with Bootstrap 4. Branding, UI/UX enhance
 |:---:|:---:|
 | ![Home page](previews/home-full.jpg) | ![Hero section](previews/hero.jpg) |
 
-| Featured drinks | Café gallery |
-|:---:|:---:|
-| ![Featured drinks](previews/featured-drinks.jpg) | ![Gallery](previews/gallery.jpg) |
 
-| About section |
-|:---:|
-| ![About](previews/about.png) |
 
 ## Pages
 
