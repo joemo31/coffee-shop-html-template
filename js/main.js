@@ -77,29 +77,97 @@
         });
     }
 
+    // Hero carousel — replay caption animation on slide change
+    if ($("#blog-carousel").length && !prefersReducedMotion) {
+        $("#blog-carousel").on("slid.bs.carousel", function () {
+            var $lines = $(this).find(".carousel-item.active .hero-line");
+            $lines.css("animation", "none");
+            $lines.each(function () {
+                void this.offsetWidth;
+            });
+            $lines.css("animation", "");
+        });
+    }
+
     // Scroll reveal
     if (!prefersReducedMotion && "IntersectionObserver" in window) {
-        var revealTargets = document.querySelectorAll(
-            ".section-title, .row.align-items-center, .testimonial-item, .col-lg-4.py-0, .col-lg-4.py-5"
-        );
-        revealTargets.forEach(function (el) {
-            el.classList.add("reveal");
+        var revealSelectors = [
+            ".section-title",
+            ".row.align-items-center",
+            ".testimonial-item",
+            ".col-lg-4.py-0",
+            ".col-lg-4.py-5",
+            ".reveal-stagger"
+        ].join(", ");
+
+        document.querySelectorAll(revealSelectors).forEach(function (el) {
+            if (!el.classList.contains("reveal-stagger")) {
+                el.classList.add("reveal");
+            }
         });
 
-        var observer = new IntersectionObserver(
+        var revealObserver = new IntersectionObserver(
             function (entries) {
                 entries.forEach(function (entry) {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add("reveal-visible");
-                        observer.unobserve(entry.target);
+                    if (!entry.isIntersecting) return;
+                    var el = entry.target;
+                    if (el.classList.contains("reveal-stagger")) {
+                        el.classList.add("reveal-visible");
+                    } else {
+                        el.classList.add("reveal-visible");
                     }
+                    revealObserver.unobserve(el);
                 });
             },
             { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
         );
 
-        document.querySelectorAll(".reveal").forEach(function (el) {
-            observer.observe(el);
+        document.querySelectorAll(".reveal, .reveal-stagger").forEach(function (el) {
+            revealObserver.observe(el);
+        });
+
+        // Animated stat counters
+        var countersStarted = false;
+        var statsObserver = new IntersectionObserver(
+            function (entries) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting || countersStarted) return;
+                    countersStarted = true;
+                    document.querySelectorAll(".stat-number").forEach(function (counter) {
+                        var target = parseInt(counter.getAttribute("data-count"), 10);
+                        var duration = 1800;
+                        var start = 0;
+                        var startTime = null;
+
+                        function step(timestamp) {
+                            if (!startTime) startTime = timestamp;
+                            var progress = Math.min((timestamp - startTime) / duration, 1);
+                            var eased = 1 - Math.pow(1 - progress, 3);
+                            counter.textContent = Math.floor(start + (target - start) * eased);
+                            if (progress < 1) {
+                                requestAnimationFrame(step);
+                            } else {
+                                counter.textContent = target;
+                            }
+                        }
+                        requestAnimationFrame(step);
+                    });
+                    statsObserver.disconnect();
+                });
+            },
+            { threshold: 0.3 }
+        );
+
+        var statsSection = document.querySelector(".stats-section");
+        if (statsSection) {
+            statsObserver.observe(statsSection);
+        }
+    } else {
+        document.querySelectorAll(".stat-number").forEach(function (counter) {
+            counter.textContent = counter.getAttribute("data-count");
+        });
+        document.querySelectorAll(".reveal-stagger").forEach(function (el) {
+            el.classList.add("reveal-visible");
         });
     }
 
